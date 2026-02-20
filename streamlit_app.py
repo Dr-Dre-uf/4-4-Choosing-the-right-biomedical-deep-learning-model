@@ -160,7 +160,7 @@ if mode == "Activity 1: Architecture Mechanics":
             help="The number of tokens (words or data points) in the input sequence."
         )
         
-        st.write("Because every word looks at every other word, attention calculations grow quadratically ($N^2$):")
+        st.write("Because every word looks at every other word, attention calculations grow quadratically (N squared):")
         interactions = seq_length * seq_length
         st.metric(
             "Total Attention Interactions Computed", 
