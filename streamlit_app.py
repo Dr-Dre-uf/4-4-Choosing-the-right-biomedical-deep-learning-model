@@ -80,10 +80,11 @@ if mode == "Lab 1: Architecture Mechanics":
             
             # Dynamic visualization of parameter distribution
             param_data = pd.DataFrame({
-                "Layer Type": ["Input -> First Hidden", "Between Hidden Layers"],
+                "Layer Type": ["Input to First Hidden", "Between Hidden Layers"],
                 "Parameter Count": [first_layer_params, hidden_params]
             })
-            st.bar_chart(param_data.set_index("Layer Type"), help="Notice how high-dimensional inputs cause the first layer parameters to dominate the network's capacity.")
+            st.bar_chart(param_data.set_index("Layer Type"))
+            st.caption("Notice how high-dimensional inputs cause the first layer parameters to completely dominate the network's computational capacity.")
 
     elif model_choice == "Convolutional Neural Network (CNN)":
         st.subheader("Convolutional Neural Network (CNN)")
@@ -113,7 +114,8 @@ if mode == "Lab 1: Architecture Mechanics":
             
             # Dynamic visual of dimension reduction
             chart_data = pd.DataFrame({"Layer Step": [f"Pool {i}" for i in range(pools + 1)], "Grid Size (1D)": sizes})
-            st.line_chart(chart_data.set_index("Layer Step"), help="The exponential decay of spatial dimensions as data passes deeper into the CNN architecture.")
+            st.line_chart(chart_data.set_index("Layer Step"))
+            st.caption("Observe the exponential decay of spatial dimensions as the data passes deeper into the CNN architecture.")
 
     elif model_choice == "Recurrent Neural Network (LSTM)":
         st.subheader("Recurrent Neural Network (LSTM)")
@@ -141,7 +143,8 @@ if mode == "Lab 1: Architecture Mechanics":
             })
             
             st.write("**Signal Strength of the First Event Over Time**")
-            st.area_chart(decay_data.set_index("Time Steps Ago"), help="Observe the vanishing gradient. If the retention factor is too low, the model completely forgets the earliest data points by the end of the sequence.")
+            st.area_chart(decay_data.set_index("Time Steps Ago"))
+            st.caption("Observe the vanishing gradient. If the retention factor is too low, the model completely forgets the earliest data points by the end of the sequence.")
 
     elif model_choice == "Transformer":
         st.subheader("Transformer")
@@ -170,7 +173,8 @@ if mode == "Lab 1: Architecture Mechanics":
                 "Sequence Length": scale_range,
                 "Compute Cost (Interactions)": compute_cost
             })
-            st.line_chart(scale_data.set_index("Sequence Length"), help="The quadratic curve demonstrates why Transformers excel at long-range context but require massive parallel processing power (GPUs) for long sequences.")
+            st.line_chart(scale_data.set_index("Sequence Length"))
+            st.caption("The quadratic curve demonstrates why Transformers excel at long-range context but require massive parallel processing power for long sequences.")
 
 # ==========================================
 # LAB 2: SYSTEM DEPLOYMENT SIMULATOR
