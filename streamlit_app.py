@@ -39,10 +39,7 @@ if mode == "Activity 1: The Overfitting Threshold (DNN)":
         **Your Task:** Adjust the sample size and feature inputs below. Observe the moment the model has too many parameters relative to the available data, triggering an overfitting warning.
         """)
         
-    
-
-[Image of Deep Neural Network architecture]
-
+    st.caption("[Insert Image of Deep Neural Network architecture here]")
     st.markdown("---")
     
     if scientific_context == "Clinical (Patient Care)":
@@ -89,10 +86,7 @@ elif mode == "Activity 2: Spatial Compression (CNN)":
         **Your Task:** Use the controls below to mathematically compress an 8x8 matrix using Max Pooling, and apply Dropout to see how networks prevent reliance on specific neurons.
         """)
         
-    
-
-[Image of Convolutional Neural Network architecture]
-
+    st.caption("[Insert Image of Convolutional Neural Network architecture here]")
     st.markdown("---")
     
     if scientific_context == "Clinical (Patient Care)":
@@ -151,7 +145,7 @@ elif mode == "Activity 3: Sequential Memory (LSTM)":
         **Your Task:** Adjust the 'Forget Gate' slider and step through time sequentially. Observe how much of the original context survives to the final prediction step.
         """)
         
-    
+    st.caption("[Insert Image of LSTM neural network cell here]")
     st.markdown("---")
     
     if scientific_context == "Clinical (Patient Care)":
@@ -191,7 +185,7 @@ elif mode == "Activity 4: Self-Attention (Transformer)":
         **Your Task:** Adjust the attention focus level to see how a Transformer maps relationships. Notice how it looks at all elements at once, completely bypassing the step-by-step memory bottleneck of an LSTM.
         """)
         
-    
+    st.caption("[Insert Image of Transformer neural network architecture here]")
     st.markdown("---")
     
     if scientific_context == "Clinical (Patient Care)":
