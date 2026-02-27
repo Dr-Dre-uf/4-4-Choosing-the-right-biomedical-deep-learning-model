@@ -3,202 +3,204 @@ import pandas as pd
 import numpy as np
 
 # --- PAGE CONFIGURATION & ACCESSIBILITY ---
-st.set_page_config(page_title="Module 4: 1D CNN & Evaluation", layout="wide")
+st.set_page_config(page_title="Notebook 4: 1D CNN Evaluation", layout="wide")
 
 # --- SIDEBAR NAVIGATION ---
-st.sidebar.title("Module Settings")
+st.sidebar.title("Notebook 4 Labs")
 scientific_context = st.sidebar.radio(
     "Select Learning Context:",
     ["Clinical (Patient Care)", "Foundational (Algorithmic & Basic Science)"],
-    help="Toggle the interface to display examples relevant to your specific domain."
+    help="Toggle the interface terminology."
 )
 st.sidebar.markdown("---")
 
-st.sidebar.title("Interactive Labs")
 mode = st.sidebar.radio(
     "Select an Activity:",
     [
-        "Activity 1: 1D CNN on Tabular Data", 
-        "Activity 2: 5-Fold Cross-Validation", 
-        "Activity 3: Evaluation Metrics Calculator"
-    ],
-    help="Navigate through the activities to explore the concepts from your notebook."
+        "Activity 1: Preprocessing & 1D CNN", 
+        "Activity 2: The Architecture & Dropout", 
+        "Activity 3: 5-Fold Metrics Dashboard"
+    ]
 )
 
 # ==========================================
-# ACTIVITY 1: 1D CNN ON TABULAR DATA
+# ACTIVITY 1: PREPROCESSING & 1D CNN
 # ==========================================
-if mode == "Activity 1: 1D CNN on Tabular Data":
-    st.title("Activity 1: 1D CNN on Tabular Data")
+if mode == "Activity 1: Preprocessing & 1D CNN":
+    st.title("Activity 1: Preprocessing & 1D CNN")
     
-    with st.expander("Activity Instructions (Click to expand)", expanded=True):
+    with st.expander("Activity Instructions", expanded=True):
         st.write("""
-        **Objective:** Understand how a Convolutional Neural Network, typically used for 2D images, can process 1D tabular data.
-        
-        **Action Items:**
-        1. Set your Kernel Size.
-        2. Use the 'Slide the Filter' control to manually step the 1D CNN across the dataset.
-        3. Watch how the filter groups adjacent variables to create a new compressed feature map.
+        **Objective:** Understand why data must be scaled, and how the 1D Kernel reads it.
+        **Notebook Connection:** This simulates the `StandardScaler()` and `Conv1D()` functions from your notebook.
         """)
         
     
+
+[Image of 1D Convolutional Neural Network architecture]
+
     st.markdown("---")
     
-    if scientific_context == "Clinical (Patient Care)":
-        features = ["Pregnancies", "Glucose", "BloodPressure", "SkinThickness", "Insulin", "BMI", "Pedigree", "Age"]
+    st.header("Step 1: StandardScaler Transformation")
+    st.write("In Notebook 4, the data is passed through `StandardScaler` to center the mean at 0 and scale the standard deviation to 1. Toggle the scaler below to see why this is necessary.")
+    
+    # Raw data from the notebook's df.head()
+    features = ["Pregnancies", "Glucose", "BloodPressure", "SkinThickness", "Insulin", "BMI", "Pedigree", "Age"]
+    raw_data = [6, 148, 72, 35, 0, 33.6, 0.627, 50]
+    scaled_data = [0.6, 0.8, 0.1, 0.9, -0.6, 0.2, -0.4, 1.4] # Mock scaled data for visual
+    
+    apply_scaler = st.toggle("Apply StandardScaler()", value=False)
+    
+    display_data = scaled_data if apply_scaler else raw_data
+    
+    df_visual = pd.DataFrame([display_data], columns=features, index=["Patient 0"])
+    st.dataframe(df_visual.style.format("{:.3f}"), use_container_width=True)
+    
+    if apply_scaler:
+        st.success("Data Normalized: Notice how the massive difference in scale between 'Glucose' (148) and 'Pedigree' (0.627) has been eliminated. This prevents large numbers from dominating the neural network's weights.")
     else:
-        features = ["Assay Alpha", "Biomarker 1", "Biomarker 2", "Protein Level", "Transcript", "Cell Mass", "Affinity", "Specimen Age"]
+        st.warning("Raw Data: Feeding this directly into a CNN causes the model to over-value 'Glucose' simply because the raw integer is larger than the others.")
         
-    st.header("Interactive Mechanics: The Sliding 1D Kernel")
-    
-    col1, col2 = st.columns([1, 2])
-    with col1:
-        kernel_size = st.slider("Kernel Size (Filter Width)", min_value=2, max_value=4, value=3)
-        max_steps = len(features) - kernel_size + 1
-        current_step = st.slider("Slide the Filter (Time Step)", min_value=1, max_value=max_steps, value=1)
-        
-    with col2:
-        st.write("**Raw 1D Input Data:**")
-        
-        # Create a visual representation of the array
-        display_html = "<div style='display:flex; gap:5px; flex-wrap:wrap;'>"
-        for i, feat in enumerate(features):
-            # Highlight the active window
-            if current_step - 1 <= i < current_step - 1 + kernel_size:
-                display_html += f"<div style='background-color:#1E88E5; color:white; padding:10px; border-radius:5px; font-weight:bold;'>{feat}</div>"
-            else:
-                display_html += f"<div style='background-color:#E0E0E0; color:black; padding:10px; border-radius:5px;'>{feat}</div>"
-        display_html += "</div>"
-        
-        st.markdown(display_html, unsafe_allow_html=True)
-        
-        st.markdown("<br>", unsafe_allow_html=True)
-        st.write("**New Feature Map Extracted by CNN:**")
-        
-        # Show what the CNN is currently extracting
-        active_features = features[current_step - 1 : current_step - 1 + kernel_size]
-        st.success(f"Output Node {current_step} ← Mathematical combination of: [ " + " + ".join(active_features) + " ]")
-            
-    st.caption("Text Description: As you slide the filter, the blue highlighted boxes show exactly which adjacent variables the CNN is currently analyzing to find local patterns. This is how a Conv1D layer processes tabular data.")
-
-# ==========================================
-# ACTIVITY 2: 5-FOLD CROSS-VALIDATION
-# ==========================================
-elif mode == "Activity 2: 5-Fold Cross-Validation":
-    st.title("Activity 2: 5-Fold Cross-Validation")
-    
-    with st.expander("Activity Instructions (Click to expand)", expanded=True):
-        st.write("""
-        **Objective:** Explore how K-Fold Cross-Validation prevents biased model evaluation.
-        
-        **Action Items:**
-        1. Cycle through the 5 different folds.
-        2. Watch the simulated Roster below to see exactly which samples are withheld for validation.
-        3. Observe how every single sample gets to be in the 'Validation' set exactly once.
-        """)
-        
-    
     st.markdown("---")
+    st.header("Step 2: The 1D Sliding Kernel")
+    st.write("Now that the data is scaled, the Conv1D layer slides a kernel (size=3 in our notebook) across the features.")
     
-    st.header("Interactive Mechanics: Data Splitting Simulator")
+    current_step = st.slider("Slide the Conv1D Filter (Time Step)", min_value=1, max_value=6, value=1)
     
-    fold_choice = st.radio(
-        "Select the active training run:",
-        [1, 2, 3, 4, 5],
-        horizontal=True,
-        format_func=lambda x: f"Fold {x}"
-    )
-    
-    st.write(f"**Data Allocation for Fold {fold_choice}:**")
-    
-    # Simulate a dataset of 25 patients/samples
-    total_samples = 25
-    samples_per_fold = total_samples // 5
-    
-    start_val = (fold_choice - 1) * samples_per_fold
-    end_val = start_val + samples_per_fold
-    
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.markdown("<h4 style='text-align:center;'>Training Pool (80%)</h4>", unsafe_allow_html=True)
-        train_list = [f"ID-{i:02d}" for i in range(1, total_samples + 1) if not (start_val < i <= end_val)]
-        
-        # Display as a clean grid
-        df_train = pd.DataFrame(np.array(train_list).reshape(-1, 4))
-        st.dataframe(df_train, use_container_width=True, hide_index=True)
-        
-    with col2:
-        st.markdown("<h4 style='text-align:center; color:#1E88E5;'>Validation Pool (20%)</h4>", unsafe_allow_html=True)
-        val_list = [f"ID-{i:02d}" for i in range(start_val + 1, end_val + 1)]
-        
-        df_val = pd.DataFrame(np.array(val_list).reshape(-1, 1), columns=["Withheld for Testing"])
-        st.dataframe(df_val, use_container_width=True, hide_index=True)
-
-    st.caption("Text Description: The simulation divides 25 sample IDs. In each fold, exactly 5 unique IDs are moved to the Validation Pool. By the time you reach Fold 5, every single ID has been tested.")
-
-# ==========================================
-# ACTIVITY 3: EVALUATION METRICS CALCULATOR
-# ==========================================
-elif mode == "Activity 3: Evaluation Metrics Calculator":
-    st.title("Activity 3: Evaluation Metrics Calculator")
-    
-    with st.expander("Activity Instructions (Click to expand)", expanded=True):
-        st.write("""
-        **Objective:** Understand how the Confusion Matrix drives evaluation metrics.
-        
-        **Action Items:**
-        1. Adjust the sliders on the left to simulate prediction outcomes.
-        2. Watch the Visual Confusion Matrix update.
-        3. Observe the live bar chart to see how False Negatives instantly crash your Sensitivity score.
-        """)
-        
-    
-    st.markdown("---")
-    
-    if scientific_context == "Clinical (Patient Care)":
-        pos_label = "Diabetes"
-        neg_label = "Healthy"
-    else:
-        pos_label = "Target Match"
-        neg_label = "No Match"
-        
-    col_sliders, col_matrix, col_chart = st.columns([1.2, 1.5, 1.5])
-    
-    with col_sliders:
-        st.subheader("1. Adjust Predictions")
-        tp = st.slider(f"True Positives", 0, 100, 60, help=f"Correctly predicted {pos_label}")
-        tn = st.slider(f"True Negatives", 0, 100, 83, help=f"Correctly predicted {neg_label}")
-        fp = st.slider(f"False Positives", 0, 100, 17, help=f"Incorrectly predicted {pos_label}")
-        fn = st.slider(f"False Negatives", 0, 100, 40, help=f"Incorrectly predicted {neg_label}")
-
-    with col_matrix:
-        st.subheader("2. Confusion Matrix")
-        # Visual Confusion Matrix
-        st.success(f"**True Positives:**\n\n# {tp}")
-        st.error(f"**False Positives:**\n\n# {fp}")
-        st.warning(f"**False Negatives:**\n\n# {fn}")
-        st.info(f"**True Negatives:**\n\n# {tn}")
-
-    with col_chart:
-        st.subheader("3. Live Clinical Metrics")
-        
-        total = tp + tn + fp + fn
-        accuracy = (tp + tn) / total if total > 0 else 0
-        sensitivity = tp / (tp + fn) if (tp + fn) > 0 else 0
-        specificity = tn / (tn + fp) if (tn + fp) > 0 else 0
-        precision = tp / (tp + fp) if (tp + fp) > 0 else 0
-        
-        # Real-time Bar Chart of Metrics
-        metrics_df = pd.DataFrame({
-            "Metric": ["Accuracy", "Sensitivity", "Specificity", "Precision"],
-            "Score": [accuracy, sensitivity, specificity, precision]
-        })
-        st.bar_chart(metrics_df.set_index("Metric"), y="Score")
-        
-        # Highlight Notebook connection
-        st.markdown(f"**Current Sensitivity: {sensitivity:.2f}**")
-        if sensitivity < 0.70:
-            st.error("⚠️ Danger: Sensitivity is too low. The model is missing too many positive cases!")
+    display_html = "<div style='display:flex; gap:5px; flex-wrap:wrap;'>"
+    for i, feat in enumerate(features):
+        val = display_data[i]
+        if current_step - 1 <= i < current_step - 1 + 3:
+            display_html += f"<div style='background-color:#1E88E5; color:white; padding:10px; border-radius:5px; font-weight:bold; text-align:center;'>{feat}<br>{val:.2f}</div>"
         else:
-            st.success("✅ Sensitivity is stable.")
+            display_html += f"<div style='background-color:#E0E0E0; color:black; padding:10px; border-radius:5px; text-align:center;'>{feat}<br>{val:.2f}</div>"
+    display_html += "</div>"
+    
+    st.markdown(display_html, unsafe_allow_html=True)
+    st.caption("Text Description: The blue boxes represent the 3 adjacent features currently being multiplied by the kernel's weights to extract a latent pattern.")
+
+# ==========================================
+# ACTIVITY 2: THE ARCHITECTURE & DROPOUT
+# ==========================================
+elif mode == "Activity 2: The Architecture & Dropout":
+    st.title("Activity 2: The Architecture & Dropout")
+    
+    with st.expander("Activity Instructions", expanded=True):
+        st.write("""
+        **Objective:** Visualize the 7-layer Sequential model built in the notebook and interact with the Dropout layer.
+        **Notebook Connection:** This explores the `model = Sequential([...])` block and the `Dropout(0.3)` function.
+        """)
+        
+    st.header("Notebook 4 Model Architecture")
+    
+    st.code("""
+    model = Sequential([
+        Input(shape=(8, 1)),                  # Layer 1: Input
+        Conv1D(32, kernel_size=3),            # Layer 2: Feature Extraction
+        Conv1D(64, kernel_size=3),            # Layer 3: Deep Feature Extraction
+        Flatten(),                            # Layer 4: 1D Vector Conversion
+        Dense(32, activation='relu'),         # Layer 5: Fully Connected
+        Dropout(0.3),                         # Layer 6: Regularization
+        Dense(1, activation='sigmoid')        # Layer 7: Binary Output (0 or 1)
+    ])
+    # Total Params: 14,593
+    """, language="python")
+    
+    st.markdown("---")
+    st.header("Interactive Mechanics: The Dropout Regularizer")
+    st.write("In Layer 6, the notebook applies `Dropout(0.3)`. This randomly turns off 30% of the neurons during training so the model doesn't become overly reliant on any single pathway (preventing overfitting).")
+    
+    dropout_rate = st.slider("Adjust Dropout Rate", min_value=0.0, max_value=0.9, value=0.3, step=0.1)
+    
+    st.write(f"**Simulating 32 Neurons in the Dense Layer (Dropout = {dropout_rate*100:.0f}%)**")
+    
+    # Simulate 32 neurons
+    np.random.seed(42) # Keep random consistent for visual stability
+    neurons = np.ones(32)
+    drop_indices = np.random.choice(32, int(32 * dropout_rate), replace=False)
+    neurons[drop_indices] = 0
+    
+    neuron_html = "<div style='display:flex; gap:10px; flex-wrap:wrap; width: 80%;'>"
+    active_count = 0
+    for n in neurons:
+        if n == 1:
+            neuron_html += "<div style='background-color:#4CAF50; width:30px; height:30px; border-radius:15px;' title='Active Neuron'></div>"
+            active_count += 1
+        else:
+            neuron_html += "<div style='background-color:#9E9E9E; width:30px; height:30px; border-radius:15px; opacity:0.3;' title='Dropped Neuron'></div>"
+    neuron_html += "</div>"
+    
+    st.markdown(neuron_html, unsafe_allow_html=True)
+    st.caption(f"Text Description: Out of 32 total neurons, {active_count} are active (green) and {32-active_count} are temporarily deactivated (gray) for this specific training epoch.")
+
+# ==========================================
+# ACTIVITY 3: 5-FOLD METRICS DASHBOARD
+# ==========================================
+elif mode == "Activity 3: 5-Fold Metrics Dashboard":
+    st.title("Activity 3: 5-Fold Metrics Dashboard")
+    
+    with st.expander("Activity Instructions", expanded=True):
+        st.write("""
+        **Objective:** Analyze the actual cross-validation results generated by your notebook.
+        **Notebook Connection:** This dashboard visualizes the `kf.split(X)` loop and the final printed output metrics.
+        """)
+        
+    
+    st.markdown("---")
+    
+    # Exact data from the user's notebook prompt
+    fold_data = {
+        "Fold 1": {"Acc": 0.695, "Sens": 0.636, "Spec": 0.727, "Prec": 0.565},
+        "Fold 2": {"Acc": 0.779, "Sens": 0.681, "Spec": 0.822, "Prec": 0.627},
+        "Fold 3": {"Acc": 0.708, "Sens": 0.443, "Spec": 0.882, "Prec": 0.711},
+        "Fold 4": {"Acc": 0.765, "Sens": 0.660, "Spec": 0.811, "Prec": 0.608},
+        "Fold 5": {"Acc": 0.765, "Sens": 0.569, "Spec": 0.884, "Prec": 0.750}
+    }
+    
+    st.header("Notebook Output Analysis")
+    selected_fold = st.selectbox("Select a Training Fold to View Results:", ["Average (Final Output)"] + list(fold_data.keys()))
+    
+    col1, col2, col3, col4 = st.columns(4)
+    
+    if selected_fold == "Average (Final Output)":
+        st.info("These are the final averaged metrics across all 5 folds, exactly as printed at the end of Notebook 4.")
+        acc = 0.742
+        sens = 0.598
+        spec = 0.825
+        prec = 0.652
+    else:
+        st.info(f"Displaying evaluation metrics isolated to the 20% validation data used in {selected_fold}.")
+        acc = fold_data[selected_fold]["Acc"]
+        sens = fold_data[selected_fold]["Sens"]
+        spec = fold_data[selected_fold]["Spec"]
+        prec = fold_data[selected_fold]["Prec"]
+        
+    col1.metric("Accuracy", f"{acc:.3f}")
+    col2.metric("Sensitivity", f"{sens:.3f}")
+    col3.metric("Specificity", f"{spec:.3f}")
+    col4.metric("Precision", f"{prec:.3f}")
+    
+    st.markdown("---")
+    st.header("Interactive Diagnosis: The Sensitivity Problem")
+    st.write("The Notebook asks: *'How is the performance? Is it better than the DNN?'* You will notice the **Average Sensitivity is 0.598**. This means the model is missing ~40% of the positive disease cases!")
+    
+    st.write("In the notebook, the prediction threshold is hardcoded to `0.5` (`y_pred_prob > 0.5`). Adjust the threshold slider below to see how clinical data scientists fix low sensitivity.")
+    
+    threshold = st.slider("Prediction Probability Threshold", min_value=0.1, max_value=0.9, value=0.5, step=0.1)
+    
+    # Simulate threshold shifting logic
+    sim_sens = max(0.1, 0.598 + ((0.5 - threshold) * 0.8))
+    sim_spec = max(0.1, 0.825 - ((0.5 - threshold) * 0.5))
+    
+    st.write(f"**Simulated Performance at Threshold > {threshold}:**")
+    
+    bar_df = pd.DataFrame({
+        "Metric": ["Sensitivity (Catching Disease)", "Specificity (Correctly Healthy)"],
+        "Score": [sim_sens, sim_spec]
+    })
+    st.bar_chart(bar_df.set_index("Metric"), y="Score")
+    
+    if threshold < 0.5:
+        st.success(f"By lowering the threshold to {threshold}, Sensitivity improves to ~{sim_sens:.2f}. The model catches more sick patients, but at the cost of more False Positives (lower Specificity).")
+    elif threshold > 0.5:
+        st.error(f"By raising the threshold to {threshold}, Sensitivity crashes to ~{sim_sens:.2f}. The model becomes overly conservative and misses even more sick patients.")
