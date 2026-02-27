@@ -35,10 +35,7 @@ if mode == "Activity 1: Preprocessing & 1D CNN":
         **Notebook Connection:** This simulates the `StandardScaler()` and `Conv1D()` functions from your notebook.
         """)
         
-    
-
-[Image of 1D Convolutional Neural Network architecture]
-
+    st.caption("[Insert Image of 1D Convolutional Neural Network architecture here]")
     st.markdown("---")
     
     st.header("Step 1: StandardScaler Transformation")
@@ -145,7 +142,7 @@ elif mode == "Activity 3: 5-Fold Metrics Dashboard":
         **Notebook Connection:** This dashboard visualizes the `kf.split(X)` loop and the final printed output metrics.
         """)
         
-    
+    st.caption("[Insert Image of K-Fold Cross Validation here]")
     st.markdown("---")
     
     # Exact data from the user's notebook prompt
