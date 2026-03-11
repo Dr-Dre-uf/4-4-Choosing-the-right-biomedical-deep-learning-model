@@ -1,20 +1,30 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+from sklearn.preprocessing import StandardScaler
+import os
 
 # --- PAGE CONFIGURATION & ACCESSIBILITY ---
-st.set_page_config(page_title="Notebook 4: Biomedical DL Model", layout="wide")
+st.set_page_config(page_title="Choosing the Right Biomedical Deep Learning (DL) Model", layout="wide")
+
+# --- DATA LOADING ---
+@st.cache_data
+def load_data():
+    file_path = "data/diabetes.csv"
+    try:
+        df = pd.read_csv(file_path)
+        return df
+    except FileNotFoundError:
+        return None
 
 # --- SIDEBAR NAVIGATION ---
 st.sidebar.title("Module Navigation")
-
-# Explicit instructions for the user to use the sidebar
 st.sidebar.info("Instructions: Please use this sidebar menu below to navigate through the different phases of Activity 1. Complete each section in order before answering the final question in your notebook.")
 
 scientific_context = st.sidebar.radio(
     "Select Learning Context:",
     ["Clinical (Patient Care)", "Foundational (Algorithmic & Basic Science)"],
-    help="Toggle the interface terminology to match your specific track. This changes the labels from patient features to biological assays."
+    help="Toggle the interface terminology to match your specific track."
 )
 st.sidebar.markdown("---")
 
@@ -27,6 +37,9 @@ mode = st.sidebar.radio(
     ],
     help="Navigate through the sequential phases of Activity 1, mirroring the code cells in your Jupyter Notebook."
 )
+
+# Load the dataset
+df = load_data()
 
 # ==========================================
 # PHASE 1: DATA PREPROCESSING
@@ -48,50 +61,55 @@ if mode == "Phase 1: Data Preprocessing":
     st.header("StandardScaler Transformation")
     st.write("In the notebook, the data is passed through `StandardScaler()` to center the mean at 0 and scale the standard deviation to 1. Toggle the scaler below to see why this is a necessary preprocessing step.")
     
-    # Raw data from the notebook's df.head()
-    features = ["Pregnancies", "Glucose", "BloodPressure", "SkinThickness", "Insulin", "BMI", "Pedigree", "Age"]
-    raw_data = [6, 148, 72, 35, 0, 33.6, 0.627, 50]
-    scaled_data = [0.6, 0.8, 0.1, 0.9, -0.6, 0.2, -0.4, 1.4] 
-    
-    apply_scaler = st.toggle(
-        "Apply StandardScaler()", 
-        value=False,
-        help="Simulates the fit_transform() function from sklearn. This forces all features to share the same numerical scale."
-    )
-    
-    display_data = scaled_data if apply_scaler else raw_data
-    
-    df_visual = pd.DataFrame([display_data], columns=features, index=["Patient X"])
-    st.dataframe(df_visual.style.format("{:.3f}"), use_container_width=True)
-    
-    if apply_scaler:
-        st.success("Data Normalized: Notice how the massive numerical difference between 'Glucose' (148) and 'Pedigree' (0.627) has been eliminated. This prevents large numbers from artificially dominating the neural network's weights.")
-    else:
-        st.warning("Raw Data: Feeding this directly into a CNN causes the model to over-value 'Glucose' simply because the raw integer is larger than the others.")
+    if df is not None:
+        # Extract features and the first row for demonstration
+        feature_cols = df.columns[:-1].tolist()
+        raw_row = df.iloc[0, :-1].values
         
-    st.markdown("---")
-    st.header("The 1D Sliding Kernel")
-    st.write("After preprocessing and reshaping the input to a 1D vector, the Conv1D layer slides a kernel (size=3) across the features.")
-    
-    current_step = st.slider(
-        "Slide the Conv1D Filter (Time Step)", 
-        min_value=1, 
-        max_value=6, 
-        value=1,
-        help="Move the slider to manually shift the 1D convolution filter across the array. This mimics how the Conv1D layer processes sequences."
-    )
-    
-    display_html = "<div style='display:flex; gap:5px; flex-wrap:wrap;'>"
-    for i, feat in enumerate(features):
-        val = display_data[i]
-        if current_step - 1 <= i < current_step - 1 + 3:
-            display_html += f"<div style='background-color:#1E88E5; color:white; padding:10px; border-radius:5px; font-weight:bold; text-align:center;'>{feat}<br>{val:.2f}</div>"
+        apply_scaler = st.toggle(
+            "Apply StandardScaler()", 
+            value=False,
+            help="Simulates the fit_transform() function from sklearn. This forces all features to share the same numerical scale."
+        )
+        
+        if apply_scaler:
+            scaler = StandardScaler()
+            scaled_features = scaler.fit_transform(df.iloc[:, :-1])
+            display_data = scaled_features[0]
+            st.success("Data Normalized: Notice how the massive numerical difference between 'Glucose' and 'DiabetesPedigreeFunction' has been eliminated. This prevents large numbers from artificially dominating the neural network's weights.")
         else:
-            display_html += f"<div style='background-color:#E0E0E0; color:black; padding:10px; border-radius:5px; text-align:center;'>{feat}<br>{val:.2f}</div>"
-    display_html += "</div>"
-    
-    st.markdown(display_html, unsafe_allow_html=True)
-    st.caption("Text Description: The dark boxes represent the 3 adjacent features currently being multiplied by the kernel's weights to extract a latent pattern.")
+            display_data = raw_row
+            st.warning("Raw Data: Feeding this directly into a CNN causes the model to over-value 'Glucose' simply because the raw integer is larger than the others.")
+            
+        df_visual = pd.DataFrame([display_data], columns=feature_cols, index=["Patient X (Row 0)"])
+        st.dataframe(df_visual.style.format("{:.3f}"), use_container_width=True)
+        
+        st.markdown("---")
+        st.header("The 1D Sliding Kernel")
+        st.write("After preprocessing and reshaping the input to a 1D vector, the Conv1D layer slides a kernel (size=3) across the features.")
+        
+        current_step = st.slider(
+            "Slide the Conv1D Filter (Time Step)", 
+            min_value=1, 
+            max_value=len(feature_cols) - 2, 
+            value=1,
+            help="Move the slider to manually shift the 1D convolution filter across the array. This mimics how the Conv1D layer processes sequences."
+        )
+        
+        display_html = "<div style='display:flex; gap:5px; flex-wrap:wrap;'>"
+        for i, feat in enumerate(feature_cols):
+            val = display_data[i]
+            if current_step - 1 <= i < current_step - 1 + 3:
+                display_html += f"<div style='background-color:#1E88E5; color:white; padding:10px; border-radius:5px; font-weight:bold; text-align:center;'>{feat}<br>{val:.2f}</div>"
+            else:
+                display_html += f"<div style='background-color:#E0E0E0; color:black; padding:10px; border-radius:5px; text-align:center;'>{feat}<br>{val:.2f}</div>"
+        display_html += "</div>"
+        
+        st.markdown(display_html, unsafe_allow_html=True)
+        st.caption("Text Description: The dark boxes represent the 3 adjacent features currently being multiplied by the kernel's weights to extract a latent pattern.")
+
+    else:
+        st.error("Dataset not found. Please ensure that 'diabetes.csv' is uploaded to a folder named 'data' inside your GitHub repository.")
 
 # ==========================================
 # PHASE 2: MODEL TRAINING STRUCTURE
@@ -120,6 +138,7 @@ elif mode == "Phase 2: Model Training Structure":
         Dense(1, activation='sigmoid')        # Output layer for binary classification
     ])
     """, language="python")
+    
     
     st.markdown("---")
     st.header("Interactive Mechanics: The Dropout Regularizer")
