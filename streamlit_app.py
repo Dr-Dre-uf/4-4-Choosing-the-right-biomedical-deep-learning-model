@@ -5,7 +5,6 @@ from sklearn.preprocessing import StandardScaler
 import os
 
 # --- PAGE CONFIGURATION & ACCESSIBILITY ---
-# Using a wide layout helps users who rely on screen magnifiers
 st.set_page_config(page_title="Choosing the Right Biomedical Deep Learning (DL) Model", layout="wide")
 
 # --- DATA LOADING ---
@@ -21,7 +20,6 @@ def load_data():
 # --- SIDEBAR NAVIGATION ---
 st.sidebar.title("Module Navigation")
 
-# Explicit instructions for the user to use the sidebar and submit in Canvas
 st.sidebar.info("Instructions: Please use this sidebar menu below to navigate through the different phases of Activity 4. Complete each section in order before answering the final question in your Canvas submission area.")
 
 scientific_context = st.sidebar.radio(
@@ -41,7 +39,6 @@ mode = st.sidebar.radio(
     help="Navigate through the sequential phases of Activity 4, mirroring the code cells in your Jupyter Notebook."
 )
 
-# Load the dataset
 df = load_data()
 
 # ==========================================
@@ -66,7 +63,6 @@ if mode == "Phase 1: Data Preprocessing":
     st.write("In the notebook, the data is passed through `StandardScaler()` to center the mean at 0 and scale the standard deviation to 1. Toggle the scaler below to see why this is a necessary preprocessing step.")
     
     if df is not None:
-        # Extract features and the first row for demonstration
         feature_cols = df.columns[:-1].tolist()
         raw_row = df.iloc[0, :-1].values
         
@@ -100,7 +96,6 @@ if mode == "Phase 1: Data Preprocessing":
             help="Move the slider to manually shift the 1D convolution filter across the array. This mimics how the Conv1D layer processes sequences."
         )
         
-        # High-contrast colors for ADA compliance
         display_html = "<div style='display:flex; gap:5px; flex-wrap:wrap;'>"
         for i, feat in enumerate(feature_cols):
             val = display_data[i]
@@ -112,8 +107,6 @@ if mode == "Phase 1: Data Preprocessing":
         
         st.markdown(display_html, unsafe_allow_html=True)
         st.caption("Text Description: The dark blue boxes represent the 3 adjacent features currently being multiplied by the kernel's weights to extract a latent pattern. The light gray boxes are currently inactive.")
-        
-        st.caption("[Insert Image of 1D Convolutional Neural Network processing tabular data here]")
 
     else:
         st.error("Dataset not found. Please ensure that 'diabetes.csv' is uploaded to a folder named 'data' inside your repository.")
@@ -182,8 +175,6 @@ elif mode == "Phase 2: Model Training Structure":
     
     st.markdown(neuron_html, unsafe_allow_html=True)
     st.caption(f"Text Description: Out of 32 total neurons, {active_count} are active (solid green) and {32-active_count} are temporarily deactivated (solid gray) for this specific training epoch.")
-    
-    st.caption("[Insert Image of neural network dropout layer here]")
 
 # ==========================================
 # PHASE 3: CROSS-VALIDATION & RESULTS
@@ -262,8 +253,6 @@ elif mode == "Phase 3: Cross-Validation & Results":
     })
     st.bar_chart(bar_df.set_index("Metric"), y="Score")
     st.caption("Text Description: A bar chart displaying the trade-off between Sensitivity and Specificity based on the selected probability threshold.")
-    
-    st.caption("[Insert Image of K-Fold Cross Validation here]")
     
     if threshold < 0.5:
         st.success(f"By lowering the threshold to {threshold}, Sensitivity improves to approximately {sim_sens:.2f}. The model catches more cases, but at the cost of more False Positives.")
