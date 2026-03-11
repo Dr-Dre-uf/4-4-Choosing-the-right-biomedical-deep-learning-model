@@ -5,6 +5,7 @@ from sklearn.preprocessing import StandardScaler
 import os
 
 # --- PAGE CONFIGURATION & ACCESSIBILITY ---
+# Using a wide layout helps users who rely on screen magnifiers
 st.set_page_config(page_title="Choosing the Right Biomedical Deep Learning (DL) Model", layout="wide")
 
 # --- DATA LOADING ---
@@ -19,7 +20,9 @@ def load_data():
 
 # --- SIDEBAR NAVIGATION ---
 st.sidebar.title("Module Navigation")
-st.sidebar.info("Instructions: Please use this sidebar menu below to navigate through the different phases of Activity 1. Complete each section in order before answering the final question in your notebook.")
+
+# Explicit instructions for the user to use the sidebar and submit in Canvas
+st.sidebar.info("Instructions: Please use this sidebar menu below to navigate through the different phases of Activity 1. Complete each section in order before answering the final question in your Canvas submission area.")
 
 scientific_context = st.sidebar.radio(
     "Select Learning Context:",
@@ -50,12 +53,11 @@ if mode == "Phase 1: Data Preprocessing":
     with st.expander("Notebook Instructions", expanded=True):
         st.write("""
         **Notebook Directives:**
-        * Complete each activity in order. Record your responses in your notebook or Canvas submission area.
+        * Complete each activity in order. Record your responses only in your Canvas submission area.
         * **Clinical Scenario:** You are part of a hospital’s clinical analytics team using a CNN model to predict in-hospital mortality.
         * **Task:** Preprocess the data before running the model.
         """)
         
-    
     st.markdown("---")
     
     st.header("StandardScaler Transformation")
@@ -96,20 +98,21 @@ if mode == "Phase 1: Data Preprocessing":
             help="Move the slider to manually shift the 1D convolution filter across the array. This mimics how the Conv1D layer processes sequences."
         )
         
+        # High-contrast colors for ADA compliance
         display_html = "<div style='display:flex; gap:5px; flex-wrap:wrap;'>"
         for i, feat in enumerate(feature_cols):
             val = display_data[i]
             if current_step - 1 <= i < current_step - 1 + 3:
-                display_html += f"<div style='background-color:#1E88E5; color:white; padding:10px; border-radius:5px; font-weight:bold; text-align:center;'>{feat}<br>{val:.2f}</div>"
+                display_html += f"<div style='background-color:#1E88E5; color:#FFFFFF; padding:10px; border-radius:5px; font-weight:bold; text-align:center;' aria-label='Active feature {feat}'>{feat}<br>{val:.2f}</div>"
             else:
-                display_html += f"<div style='background-color:#E0E0E0; color:black; padding:10px; border-radius:5px; text-align:center;'>{feat}<br>{val:.2f}</div>"
+                display_html += f"<div style='background-color:#E0E0E0; color:#000000; padding:10px; border-radius:5px; text-align:center;' aria-label='Inactive feature {feat}'>{feat}<br>{val:.2f}</div>"
         display_html += "</div>"
         
         st.markdown(display_html, unsafe_allow_html=True)
-        st.caption("Text Description: The dark boxes represent the 3 adjacent features currently being multiplied by the kernel's weights to extract a latent pattern.")
+        st.caption("Text Description: The dark blue boxes represent the 3 adjacent features currently being multiplied by the kernel's weights to extract a latent pattern. The light gray boxes are currently inactive.")
 
     else:
-        st.error("Dataset not found. Please ensure that 'diabetes.csv' is uploaded to a folder named 'data' inside your GitHub repository.")
+        st.error("Dataset not found. Please ensure that 'diabetes.csv' is uploaded to a folder named 'data' inside your repository.")
 
 # ==========================================
 # PHASE 2: MODEL TRAINING STRUCTURE
@@ -139,7 +142,6 @@ elif mode == "Phase 2: Model Training Structure":
     ])
     """, language="python")
     
-    
     st.markdown("---")
     st.header("Interactive Mechanics: The Dropout Regularizer")
     st.write("In the Dense layer, the notebook applies `Dropout(0.3)`. This randomly turns off 30% of the neurons during training so the model does not become overly reliant on any single feature pathway.")
@@ -164,14 +166,14 @@ elif mode == "Phase 2: Model Training Structure":
     active_count = 0
     for n in neurons:
         if n == 1:
-            neuron_html += "<div style='background-color:#4CAF50; width:30px; height:30px; border-radius:15px;' title='Active Neuron'></div>"
+            neuron_html += "<div style='background-color:#4CAF50; width:30px; height:30px; border-radius:15px;' title='Active Neuron' aria-label='Active Neuron'></div>"
             active_count += 1
         else:
-            neuron_html += "<div style='background-color:#9E9E9E; width:30px; height:30px; border-radius:15px; opacity:0.3;' title='Dropped Neuron'></div>"
+            neuron_html += "<div style='background-color:#757575; width:30px; height:30px; border-radius:15px;' title='Dropped Neuron' aria-label='Deactivated Neuron'></div>"
     neuron_html += "</div>"
     
     st.markdown(neuron_html, unsafe_allow_html=True)
-    st.caption(f"Text Description: Out of 32 total neurons, {active_count} are active (solid) and {32-active_count} are temporarily deactivated (faded) for this specific training epoch.")
+    st.caption(f"Text Description: Out of 32 total neurons, {active_count} are active (solid green) and {32-active_count} are temporarily deactivated (solid gray) for this specific training epoch.")
 
 # ==========================================
 # PHASE 3: CROSS-VALIDATION & RESULTS
@@ -183,10 +185,9 @@ elif mode == "Phase 3: Cross-Validation & Results":
         st.write("""
         **Notebook Directives:**
         * **5-fold cross validation:** Split the data into 5 unoverlapped datasets. Instead of training on one dataset once, train and test the model five times, each time using a different part of the data as the test set.
-        * **Question:** How is the performance? Is it better than the DNN that we used in Notebook 2? Why?!
+        * **Question:** How is the performance? Is it better than the DNN that we used in Notebook 2? Why?! (Record your response in Canvas).
         """)
         
-    
     st.markdown("---")
     
     fold_data = {
@@ -226,7 +227,7 @@ elif mode == "Phase 3: Cross-Validation & Results":
     
     st.markdown("---")
     st.header("Interactive Diagnosis: Evaluating Performance")
-    st.write("To answer the final notebook question (*'How is the performance? Is it better than the DNN?'*), notice that the **Average Sensitivity is 0.598**. This means the model is missing approximately 40% of the positive cases.")
+    st.write("To answer the final notebook question, notice that the **Average Sensitivity is 0.598**. This means the model is missing approximately 40% of the positive cases.")
     
     st.write("In the notebook, the prediction threshold is hardcoded to `0.5` (`y_pred_prob > 0.5`). Adjust the threshold slider below to simulate how performance shifts when prioritizing Sensitivity.")
     
@@ -247,6 +248,7 @@ elif mode == "Phase 3: Cross-Validation & Results":
         "Score": [sim_sens, sim_spec]
     })
     st.bar_chart(bar_df.set_index("Metric"), y="Score")
+    st.caption("Text Description: A bar chart displaying the trade-off between Sensitivity and Specificity based on the selected probability threshold.")
     
     if threshold < 0.5:
         st.success(f"By lowering the threshold to {threshold}, Sensitivity improves to approximately {sim_sens:.2f}. The model catches more cases, but at the cost of more False Positives.")
