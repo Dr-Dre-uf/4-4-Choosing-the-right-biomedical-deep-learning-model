@@ -3,10 +3,14 @@ import pandas as pd
 import numpy as np
 
 # --- PAGE CONFIGURATION & ACCESSIBILITY ---
-st.set_page_config(page_title="Notebook 4: 1D CNN Evaluation", layout="wide")
+st.set_page_config(page_title="Notebook 4: Biomedical DL Model", layout="wide")
 
 # --- SIDEBAR NAVIGATION ---
-st.sidebar.title("Notebook 4: Activity 1")
+st.sidebar.title("Module Navigation")
+
+# Explicit instructions for the user to use the sidebar
+st.sidebar.info("Instructions: Please use this sidebar menu below to navigate through the different phases of Activity 1. Complete each section in order before answering the final question in your notebook.")
+
 scientific_context = st.sidebar.radio(
     "Select Learning Context:",
     ["Clinical (Patient Care)", "Foundational (Algorithmic & Basic Science)"],
@@ -15,32 +19,34 @@ scientific_context = st.sidebar.radio(
 st.sidebar.markdown("---")
 
 mode = st.sidebar.radio(
-    "Select a Step in Activity 1:",
+    "Activity 1 Phases:",
     [
-        "Step 1: Data Preprocessing", 
-        "Step 2: Model Architecture", 
-        "Step 3: Cross-Validation & Metrics"
+        "Phase 1: Data Preprocessing", 
+        "Phase 2: Model Training Structure", 
+        "Phase 3: Cross-Validation & Results"
     ],
-    help="Navigate through the three sequential steps of Activity 1, mirroring the code cells in your Jupyter Notebook."
+    help="Navigate through the sequential phases of Activity 1, mirroring the code cells in your Jupyter Notebook."
 )
 
 # ==========================================
-# STEP 1: PREPROCESSING & 1D CNN
+# PHASE 1: DATA PREPROCESSING
 # ==========================================
-if mode == "Step 1: Data Preprocessing":
-    st.title("Activity 1, Step 1: Preprocessing & 1D CNN")
+if mode == "Phase 1: Data Preprocessing":
+    st.title("Activity 1: Data Preprocessing")
     
-    with st.expander("Step Instructions", expanded=True):
+    with st.expander("Notebook Instructions", expanded=True):
         st.write("""
-        **Objective:** Understand why data must be scaled, and how the 1D Kernel reads it.
-        **Notebook Connection:** This simulates the `StandardScaler()` and `Conv1D()` functions from the first code blocks of Activity 1.
+        **Notebook Directives:**
+        * Complete each activity in order. Record your responses in your notebook or Canvas submission area.
+        * **Clinical Scenario:** You are part of a hospital’s clinical analytics team using a CNN model to predict in-hospital mortality.
+        * **Task:** Preprocess the data before running the model.
         """)
         
     
     st.markdown("---")
     
-    st.header("Part A: StandardScaler Transformation")
-    st.write("In Notebook 4, the data is passed through `StandardScaler` to center the mean at 0 and scale the standard deviation to 1. Toggle the scaler below to see why this is necessary.")
+    st.header("StandardScaler Transformation")
+    st.write("In the notebook, the data is passed through `StandardScaler()` to center the mean at 0 and scale the standard deviation to 1. Toggle the scaler below to see why this is a necessary preprocessing step.")
     
     # Raw data from the notebook's df.head()
     features = ["Pregnancies", "Glucose", "BloodPressure", "SkinThickness", "Insulin", "BMI", "Pedigree", "Age"]
@@ -55,7 +61,7 @@ if mode == "Step 1: Data Preprocessing":
     
     display_data = scaled_data if apply_scaler else raw_data
     
-    df_visual = pd.DataFrame([display_data], columns=features, index=["Patient 0"])
+    df_visual = pd.DataFrame([display_data], columns=features, index=["Patient X"])
     st.dataframe(df_visual.style.format("{:.3f}"), use_container_width=True)
     
     if apply_scaler:
@@ -64,8 +70,8 @@ if mode == "Step 1: Data Preprocessing":
         st.warning("Raw Data: Feeding this directly into a CNN causes the model to over-value 'Glucose' simply because the raw integer is larger than the others.")
         
     st.markdown("---")
-    st.header("Part B: The 1D Sliding Kernel")
-    st.write("Now that the data is scaled, the Conv1D layer slides a kernel (size=3 in our notebook) across the features.")
+    st.header("The 1D Sliding Kernel")
+    st.write("After preprocessing and reshaping the input to a 1D vector, the Conv1D layer slides a kernel (size=3) across the features.")
     
     current_step = st.slider(
         "Slide the Conv1D Filter (Time Step)", 
@@ -88,35 +94,36 @@ if mode == "Step 1: Data Preprocessing":
     st.caption("Text Description: The dark boxes represent the 3 adjacent features currently being multiplied by the kernel's weights to extract a latent pattern.")
 
 # ==========================================
-# STEP 2: THE ARCHITECTURE & DROPOUT
+# PHASE 2: MODEL TRAINING STRUCTURE
 # ==========================================
-elif mode == "Step 2: Model Architecture":
-    st.title("Activity 1, Step 2: The Architecture & Dropout")
+elif mode == "Phase 2: Model Training Structure":
+    st.title("Activity 1: Model Training Structure")
     
-    with st.expander("Step Instructions", expanded=True):
+    with st.expander("Notebook Interpretation", expanded=True):
         st.write("""
-        **Objective:** Visualize the 7-layer Sequential model built in the notebook and interact with the Dropout layer.
-        **Notebook Connection:** This explores the `model = Sequential([...])` block and the `Dropout(0.3)` function.
+        **Notebook Interpretation:**
+        * There are 7 layers (1 input layer, 5 hidden layers, and 1 output layer) in the CNN model.
+        * The first and second hidden layers learn the latent factors from the data using 32 and 64 nodes.
+        * The Dropout layer randomly drops 30% of neurons during training, preventing overfitting.
         """)
         
-    st.header("Notebook 4 Model Architecture")
+    st.header("Model Architecture Breakdown")
     
     st.code("""
     model = Sequential([
-        Input(shape=(8, 1)),                  # Layer 1: Input
-        Conv1D(32, kernel_size=3),            # Layer 2: Feature Extraction
-        Conv1D(64, kernel_size=3),            # Layer 3: Deep Feature Extraction
-        Flatten(),                            # Layer 4: 1D Vector Conversion
-        Dense(32, activation='relu'),         # Layer 5: Fully Connected
-        Dropout(0.3),                         # Layer 6: Regularization
-        Dense(1, activation='sigmoid')        # Layer 7: Binary Output (0 or 1)
+        Input(shape=(X_train.shape[1], 1)),   # Input layer
+        Conv1D(32, kernel_size=3, activation='relu'),
+        Conv1D(64, kernel_size=3, activation='relu'),
+        Flatten(),                            # Converts feature maps to 1-D vector
+        Dense(32, activation='relu'),
+        Dropout(0.3),                         # Prevents overfitting
+        Dense(1, activation='sigmoid')        # Output layer for binary classification
     ])
-    # Total Params: 14,593
     """, language="python")
     
     st.markdown("---")
     st.header("Interactive Mechanics: The Dropout Regularizer")
-    st.write("In Layer 6, the notebook applies `Dropout(0.3)`. This randomly turns off 30% of the neurons during training so the model does not become overly reliant on any single pathway (preventing overfitting).")
+    st.write("In the Dense layer, the notebook applies `Dropout(0.3)`. This randomly turns off 30% of the neurons during training so the model does not become overly reliant on any single feature pathway.")
     
     dropout_rate = st.slider(
         "Adjust Dropout Rate", 
@@ -148,15 +155,16 @@ elif mode == "Step 2: Model Architecture":
     st.caption(f"Text Description: Out of 32 total neurons, {active_count} are active (solid) and {32-active_count} are temporarily deactivated (faded) for this specific training epoch.")
 
 # ==========================================
-# STEP 3: 5-FOLD METRICS DASHBOARD
+# PHASE 3: CROSS-VALIDATION & RESULTS
 # ==========================================
-elif mode == "Step 3: Cross-Validation & Metrics":
-    st.title("Activity 1, Step 3: Cross-Validation & Metrics")
+elif mode == "Phase 3: Cross-Validation & Results":
+    st.title("Activity 1: Cross-Validation & Results")
     
-    with st.expander("Step Instructions", expanded=True):
+    with st.expander("Notebook Instructions", expanded=True):
         st.write("""
-        **Objective:** Analyze the actual cross-validation results generated by your notebook.
-        **Notebook Connection:** This dashboard visualizes the `kf.split(X)` loop and the final printed output metrics.
+        **Notebook Directives:**
+        * **5-fold cross validation:** Split the data into 5 unoverlapped datasets. Instead of training on one dataset once, train and test the model five times, each time using a different part of the data as the test set.
+        * **Question:** How is the performance? Is it better than the DNN that we used in Notebook 2? Why?!
         """)
         
     
@@ -170,7 +178,7 @@ elif mode == "Step 3: Cross-Validation & Metrics":
         "Fold 5": {"Acc": 0.765, "Sens": 0.569, "Spec": 0.884, "Prec": 0.750}
     }
     
-    st.header("Part A: Notebook Output Analysis")
+    st.header("Notebook Output Analysis")
     selected_fold = st.selectbox(
         "Select a Training Fold to View Results:", 
         ["Average (Final Output)"] + list(fold_data.keys()),
@@ -180,7 +188,7 @@ elif mode == "Step 3: Cross-Validation & Metrics":
     col1, col2, col3, col4 = st.columns(4)
     
     if selected_fold == "Average (Final Output)":
-        st.info("These are the final averaged metrics across all 5 folds, exactly as printed at the end of Notebook 4.")
+        st.info("These are the final averaged metrics across all 5 folds, exactly as printed at the end of Activity 1.")
         acc = 0.742
         sens = 0.598
         spec = 0.825
@@ -192,16 +200,16 @@ elif mode == "Step 3: Cross-Validation & Metrics":
         spec = fold_data[selected_fold]["Spec"]
         prec = fold_data[selected_fold]["Prec"]
         
-    col1.metric("Accuracy", f"{acc:.3f}", help="The overall percentage of correct predictions (both positive and negative).")
-    col2.metric("Sensitivity", f"{sens:.3f}", help="Also known as Recall. The ability of the model to correctly identify positive disease cases.")
-    col3.metric("Specificity", f"{spec:.3f}", help="The ability of the model to correctly identify negative (healthy) cases.")
+    col1.metric("Accuracy", f"{acc:.3f}", help="The overall percentage of correct predictions.")
+    col2.metric("Sensitivity", f"{sens:.3f}", help="The ability of the model to correctly identify positive disease cases.")
+    col3.metric("Specificity", f"{spec:.3f}", help="The ability of the model to correctly identify negative cases.")
     col4.metric("Precision", f"{prec:.3f}", help="When the model predicts a positive case, this is how often it is actually correct.")
     
     st.markdown("---")
-    st.header("Part B: Interactive Diagnosis")
-    st.write("The Notebook asks: *'How is the performance? Is it better than the DNN?'* You will notice the **Average Sensitivity is 0.598**. This means the model is missing approximately 40% of the positive cases.")
+    st.header("Interactive Diagnosis: Evaluating Performance")
+    st.write("To answer the final notebook question (*'How is the performance? Is it better than the DNN?'*), notice that the **Average Sensitivity is 0.598**. This means the model is missing approximately 40% of the positive cases.")
     
-    st.write("In the notebook, the prediction threshold is hardcoded to `0.5` (`y_pred_prob > 0.5`). Adjust the threshold slider below to see how data scientists fix low sensitivity.")
+    st.write("In the notebook, the prediction threshold is hardcoded to `0.5` (`y_pred_prob > 0.5`). Adjust the threshold slider below to simulate how performance shifts when prioritizing Sensitivity.")
     
     threshold = st.slider(
         "Prediction Probability Threshold", 
@@ -209,21 +217,19 @@ elif mode == "Step 3: Cross-Validation & Metrics":
         max_value=0.9, 
         value=0.5, 
         step=0.1,
-        help="The cutoff point. If the model is more than X% confident, it predicts a positive case. Lowering this makes the model more sensitive but less specific."
+        help="The cutoff point. If the model is more than X percent confident, it predicts a positive case."
     )
     
     sim_sens = max(0.1, 0.598 + ((0.5 - threshold) * 0.8))
     sim_spec = max(0.1, 0.825 - ((0.5 - threshold) * 0.5))
     
-    st.write(f"**Simulated Performance at Threshold > {threshold}:**")
-    
     bar_df = pd.DataFrame({
-        "Metric": ["Sensitivity (Catching Disease)", "Specificity (Correctly Healthy)"],
+        "Metric": ["Sensitivity", "Specificity"],
         "Score": [sim_sens, sim_spec]
     })
     st.bar_chart(bar_df.set_index("Metric"), y="Score")
     
     if threshold < 0.5:
-        st.success(f"By lowering the threshold to {threshold}, Sensitivity improves to ~{sim_sens:.2f}. The model catches more cases, but at the cost of more False Positives (lower Specificity).")
+        st.success(f"By lowering the threshold to {threshold}, Sensitivity improves to approximately {sim_sens:.2f}. The model catches more cases, but at the cost of more False Positives.")
     elif threshold > 0.5:
-        st.error(f"By raising the threshold to {threshold}, Sensitivity drops to ~{sim_sens:.2f}. The model becomes overly conservative and misses even more cases.")
+        st.error(f"By raising the threshold to {threshold}, Sensitivity drops to approximately {sim_sens:.2f}. The model becomes overly conservative and misses even more cases.")
