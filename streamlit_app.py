@@ -113,7 +113,7 @@ if mode == "Phase 1: Data Preprocessing":
         st.markdown(display_html, unsafe_allow_html=True)
         st.caption("Text Description: The dark blue boxes represent the 3 adjacent features currently being multiplied by the kernel's weights to extract a latent pattern. The light gray boxes are currently inactive.")
         
-        [Image of 1D Convolutional Neural Network processing tabular data]
+        st.caption("[Insert Image of 1D Convolutional Neural Network processing tabular data here]")
 
     else:
         st.error("Dataset not found. Please ensure that 'diabetes.csv' is uploaded to a folder named 'data' inside your repository.")
@@ -183,7 +183,7 @@ elif mode == "Phase 2: Model Training Structure":
     st.markdown(neuron_html, unsafe_allow_html=True)
     st.caption(f"Text Description: Out of 32 total neurons, {active_count} are active (solid green) and {32-active_count} are temporarily deactivated (solid gray) for this specific training epoch.")
     
-    [Image of neural network dropout layer]
+    st.caption("[Insert Image of neural network dropout layer here]")
 
 # ==========================================
 # PHASE 3: CROSS-VALIDATION & RESULTS
@@ -263,7 +263,7 @@ elif mode == "Phase 3: Cross-Validation & Results":
     st.bar_chart(bar_df.set_index("Metric"), y="Score")
     st.caption("Text Description: A bar chart displaying the trade-off between Sensitivity and Specificity based on the selected probability threshold.")
     
-    [Image of K-Fold Cross Validation]
+    st.caption("[Insert Image of K-Fold Cross Validation here]")
     
     if threshold < 0.5:
         st.success(f"By lowering the threshold to {threshold}, Sensitivity improves to approximately {sim_sens:.2f}. The model catches more cases, but at the cost of more False Positives.")
