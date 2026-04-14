@@ -19,7 +19,7 @@ def load_data():
 # --- SIDEBAR NAVIGATION ---
 st.sidebar.title("Module Navigation")
 
-st.sidebar.info("Instructions: Please use this sidebar menu below to navigate through the different phases of Activity 4. Complete each section in order before answering the final question in your Canvas submission area.")
+st.sidebar.info("Instructions: Please use this sidebar menu below to navigate through the different activities. Complete each section in order before answering the final question in your Canvas submission area.")
 
 scientific_context = st.sidebar.radio(
     "Select Learning Context:",
@@ -29,29 +29,29 @@ scientific_context = st.sidebar.radio(
 st.sidebar.markdown("---")
 
 mode = st.sidebar.radio(
-    "Activity 4 Phases:",
+    "Select Activity:",
     [
-        "Phase 1: Data Preprocessing", 
-        "Phase 2: Model Training Structure", 
-        "Phase 3: Cross-Validation & Results"
+        "Activity 1: Data Preprocessing", 
+        "Activity 2: Model Training Structure", 
+        "Activity 3: Cross-Validation & Results"
     ],
-    help="Navigate through the sequential phases of Activity 4, mirroring the code cells in your Jupyter Notebook."
+    help="Navigate through the sequential activities, mirroring the code cells in your Jupyter Notebook."
 )
 
 df = load_data()
 
 # ==========================================
-# PHASE 1: DATA PREPROCESSING
+# ACTIVITY 1: DATA PREPROCESSING
 # ==========================================
-if mode == "Phase 1: Data Preprocessing":
-    st.title("Activity 4: Choosing the Right Biomedical Deep Learning Model")
-    st.header("Phase 1: Data Preprocessing")
+if mode == "Activity 1: Data Preprocessing":
+    st.title("Choosing the Right Biomedical Deep Learning Model")
+    st.header("Activity 1: Data Preprocessing")
     
     with st.expander("Notebook Instructions", expanded=True):
         st.write("""
         **Notebook Directives:**
         * Complete each activity in order. Record your responses only in your Canvas submission area.
-        * Open the sidebar to select the next phase in the activity.
+        * Open the sidebar to select the next activity.
         * **Task:** Preprocess the data before running the model.
         """)
         
@@ -110,17 +110,17 @@ if mode == "Phase 1: Data Preprocessing":
         st.error("Dataset not found. Please ensure that 'diabetes.csv' is uploaded to a folder named 'data' inside your repository.")
 
 # ==========================================
-# PHASE 2: MODEL TRAINING STRUCTURE
+# ACTIVITY 2: MODEL TRAINING STRUCTURE
 # ==========================================
-elif mode == "Phase 2: Model Training Structure":
-    st.title("Activity 4: Choosing the Right Biomedical Deep Learning Model")
-    st.header("Phase 2: Model Training Structure")
+elif mode == "Activity 2: Model Training Structure":
+    st.title("Choosing the Right Biomedical Deep Learning Model")
+    st.header("Activity 2: Model Training Structure")
     
     with st.expander("Notebook Interpretation", expanded=True):
         st.write("""
         **Notebook Directives:**
         * Complete each activity in order. Record your responses only in your Canvas submission area.
-        * Open the sidebar to select the next phase in the activity.
+        * Open the sidebar to select the next activity.
         * **Notebook Interpretation:**
           * There are 7 layers (1 input layer, 5 hidden layers, and 1 output layer) in the CNN model.
           * The first and second hidden layers learn the latent factors from the data using 32 and 64 nodes.
@@ -192,17 +192,17 @@ elif mode == "Phase 2: Model Training Structure":
     st.caption(f"Text Description: Out of 32 total neurons, {active_count} are active (solid green) and {32-active_count} are temporarily deactivated (solid gray) for this specific training epoch.")
 
 # ==========================================
-# PHASE 3: CROSS-VALIDATION & RESULTS
+# ACTIVITY 3: CROSS-VALIDATION & RESULTS
 # ==========================================
-elif mode == "Phase 3: Cross-Validation & Results":
-    st.title("Activity 4: Choosing the Right Biomedical Deep Learning Model")
-    st.header("Phase 3: Cross-Validation & Results")
+elif mode == "Activity 3: Cross-Validation & Results":
+    st.title("Choosing the Right Biomedical Deep Learning Model")
+    st.header("Activity 3: Cross-Validation & Results")
     
     with st.expander("Notebook Instructions", expanded=True):
         st.write("""
         **Notebook Directives:**
         * Complete each activity in order. Record your responses only in your Canvas submission area.
-        * Open the sidebar to select the next phase in the activity.
+        * Open the sidebar to select the next activity.
         * **5-fold cross validation:** Split the data into 5 unoverlapped datasets. Instead of training on one dataset once, train and test the model five times, each time using a different part of the data as the test set.
         * **Question:** How is the performance? Is it better than the DNN that we used in Notebook 2? Why? (Record your response in Canvas).
         """)
@@ -227,7 +227,7 @@ elif mode == "Phase 3: Cross-Validation & Results":
     col1, col2, col3, col4 = st.columns(4)
     
     if selected_fold == "Average (Final Output)":
-        st.info("These are the final averaged metrics across all 5 folds, exactly as printed at the end of Activity 4.")
+        st.info("These are the final averaged metrics across all 5 folds, exactly as printed at the end of the notebook.")
         acc = 0.742
         sens = 0.598
         spec = 0.825
