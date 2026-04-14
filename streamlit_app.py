@@ -23,7 +23,7 @@ st.sidebar.info("Instructions: Please use this sidebar menu below to navigate th
 
 scientific_context = st.sidebar.radio(
     "Select Learning Context:",
-    ["Clinical (Patient Care)", "Foundational (Algorithmic & Basic Science)"],
+    ["Clinical (Patient Care)", "Foundational Science"],
     help="Toggle the interface terminology to match your specific track."
 )
 st.sidebar.markdown("---")
