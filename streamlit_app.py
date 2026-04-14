@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
-import os
 
 # --- PAGE CONFIGURATION & ACCESSIBILITY ---
 st.set_page_config(page_title="Choosing the Right Biomedical Deep Learning (DL) Model", layout="wide")
@@ -53,14 +52,13 @@ if mode == "Phase 1: Data Preprocessing":
         **Notebook Directives:**
         * Complete each activity in order. Record your responses only in your Canvas submission area.
         * Open the sidebar to select the next phase in the activity.
-        * **Clinical Scenario:** You are part of a hospital's clinical analytics team using a CNN model to predict in-hospital mortality.
         * **Task:** Preprocess the data before running the model.
         """)
         
     st.markdown("---")
     
     st.subheader("StandardScaler Transformation")
-    st.write("In the notebook, the data is passed through `StandardScaler()` to center the mean at 0 and scale the standard deviation to 1. Toggle the scaler below to see why this is a necessary preprocessing step.")
+    st.write("In the notebook, the training data is passed through `StandardScaler()` to center the mean at 0 and scale the standard deviation to 1. Toggle the scaler below to see why this is a necessary preprocessing step.")
     
     if df is not None:
         feature_cols = df.columns[:-1].tolist()
@@ -86,7 +84,7 @@ if mode == "Phase 1: Data Preprocessing":
         
         st.markdown("---")
         st.subheader("The 1D Sliding Kernel")
-        st.write("After preprocessing and reshaping the input to a 1D vector, the Conv1D layer slides a kernel (size=3) across the features.")
+        st.write("After preprocessing and reshaping the input to a 1D vector `(X_train.shape[0], X_train.shape[1], 1)`, the Conv1D layer slides a kernel (size=3) across the features.")
         
         current_step = st.slider(
             "Slide the Conv1D Filter (Time Step)", 
@@ -132,6 +130,7 @@ elif mode == "Phase 2: Model Training Structure":
     st.subheader("Model Architecture Breakdown")
     
     st.code("""
+    # 1. Architecture
     model = Sequential([
         Input(shape=(X_train.shape[1], 1)),   # Input layer
         Conv1D(32, kernel_size=3, activation='relu'),
@@ -141,6 +140,22 @@ elif mode == "Phase 2: Model Training Structure":
         Dropout(0.3),                         # Prevents overfitting
         Dense(1, activation='sigmoid')        # Output layer for binary classification
     ])
+
+    # 2. Compilation
+    model.compile(
+        loss='binary_crossentropy',
+        optimizer=Adam(0.001),                # Learning rate set to 0.001
+        metrics=['accuracy']
+    )
+
+    # 3. Training
+    history = model.fit(
+        X_train, y_train,
+        epochs=50,                            # Number of times data is used during training
+        batch_size=16,                        # Samples used before updating weights
+        verbose=0,
+        validation_data=(X_val, y_val)
+    )
     """, language="python")
     
     st.markdown("---")
